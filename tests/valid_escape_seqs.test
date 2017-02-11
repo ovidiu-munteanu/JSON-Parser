@@ -1,0 +1,10 @@
+{
+  "\"": "single quotation marks",
+  "\\": "single backslash",
+  "\b": "backspace",
+  "\f": "form feed",
+  "\n": "new line",
+  "\r": "carriage return",
+  "\t": "tab",
+  "\u0A0C": "Character U+0A0C"
+}

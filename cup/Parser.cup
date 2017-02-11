@@ -1,0 +1,109 @@
+import java_cup.runtime.*;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+
+parser code {:
+	public static void main(String args[]) throws Exception {
+		SymbolFactory sf = new DefaultSymbolFactory();
+
+		// Added output messages so that the user knows what is happening
+		System.out.print("\nParsing from ");
+
+		if (args.length==0) {
+
+			// Parse from console if no input file is specified 
+			System.out.println("console:");
+
+			// Added exception handling so that the parser does not just crash out when an exception is thrown
+			try{
+				new Parser(new Scanner(System.in,sf),sf).parse();
+			}catch(Exception e){
+				printExceptionMessage(e);			
+			}
+		} else {
+
+			// Print name of source file being parsed 
+			System.out.println("input file: " + args[0]);
+
+			// Added exception handling so that the parser does not just crash out when an exception is thrown
+			try{
+				new Parser(new Scanner(new java.io.FileInputStream(args[0]),sf),sf).parse();
+			}catch(Exception e){
+				printExceptionMessage(e);
+			}
+		}
+	}
+
+	// Added a simple method to outpout an error message so that the user knows what is happening when the parser throws an exception
+	private static void printExceptionMessage(Exception e){
+		System.err.println("\nParser exception: " + e.getMessage() + "\nParsing stopped.");
+		System.out.println("\nParsing did NOT complete successfully. Please check your input file.");
+		System.exit(1);
+	}
+:}
+
+
+// Declare terminals that have no associated value i.e. JSON "punctuation" tokens { } [ ] , : and the null literal
+terminal LCRLBRKT, RCRLBRKT, LSQRBRKT, RSQRBRKT, COMMA, COLON, NULL;
+
+
+// Declare the terminals that have associated values. 
+// Later on I am using the non terminal declarations to print out their associated values
+terminal String STRING;
+terminal Long INT_NUM;
+terminal Double REAL_NUM, EXP_NUM;
+terminal Boolean BOOLEAN;
+
+
+//Declare the non terminals that can be reduced to other non terminals in the same list or terminals defined earlier
+non terminal success, valid_json, value, object, member_list, pair, array, value_list;
+
+
+// This is a helper non terminal placed at the top of tree in order to print out a success message after whole tree is parsed
+success ::= valid_json  {: System.out.println("\nParsing completed successfully."); :};
+
+
+// Helper non-terminal used to define valid JSON if it either and array or an object 
+// Note: this definition does NOT allow a single value as valid JSON 
+valid_json ::= array | object;
+
+
+// JSON object non-terminal: derives a JSON object that can either be empty { } or contain a list of members { member_list }
+// Also used to print out information messages about what is being parsed
+object ::= LCRLBRKT {: System.out.println("\nParsing object... "); :} RCRLBRKT {: System.out.println("Empty object parsed."); :} | 
+           LCRLBRKT {: System.out.println("\nParsing object... "); :} member_list RCRLBRKT {: System.out.println("Object parsed."); :}; 
+
+
+// Member list non terminal: used to derive a list of one or more JSON pairs;
+// Used in the defintion of the object non-terminal above 
+member_list ::= member_list COMMA pair | pair;
+
+
+// JSON pair non terminal: derives a JSON pair in the format key : value; as per the JSON specification, a key can only be a string
+// Also used to print the associated value of the parsed key 
+pair ::= STRING:k {: System.out.print("Key " + k + " : "); :} COLON value;
+
+
+// JSON array non terminal: derives a JSON array that can either be empty [ ] or contain a list of values [value_list]
+// Also used to print out information messages about what is being parsed 
+array ::= LSQRBRKT {: System.out.println("\nParsing array... "); :} RSQRBRKT {: System.out.println("Empty array parsed."); :} | 
+		  LSQRBRKT {: System.out.println("\nParsing array... "); :} value_list RSQRBRKT {: System.out.println("Array parsed."); :};
+
+
+// Value list non terminal: similar to the member list declared earlier, derives a list of one or more JSON values
+// Used in the definition of the array non terminal above 
+value_list ::= value_list COMMA value | value;
+
+
+// Non terminal used to derive JSON values. According to the JSON specification a value can be either a string, a number (in this case
+// split into integer, real and real in exponential notation), a boolean or null numeral, or a whole array or object (these in turn
+// could be composed as decribed above, so in effect this also a recursive derivation with any number of nested levels). 
+// NOTE: According to the JSON specification a maximum of 15 nested levels is allowed. However, the number of nested levels is not
+// checked in this implementation.   
+value ::= STRING  :s {: System.out.print(s + " (string)\n"); :}   |
+		  INT_NUM :n {: System.out.print(n + " (integer number)\n"); :} 	   | 
+		  REAL_NUM:d {: System.out.print(d + " (real number)\n"); :}        |
+		  EXP_NUM :e {: System.out.print(e.toString() + " (number in scientific notation)\n"); :} |
+		  BOOLEAN :b {: System.out.print(b + " (boolean literal)\n"); :} |
+		  NULL {: System.out.print("null (null literal)\n"); :} |
+		  array | object;
