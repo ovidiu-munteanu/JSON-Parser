@@ -3,7 +3,7 @@ JFlex Lexer + CUP Parser for the JSON Data Interchange Format, based on
 the ECMA-404 standard ([json.org](http://www.json.org))
 
 
-## Overview ##
+## Overview
 This JSON parser consists of two components, a JFlex lexer 
 (_jflex/Scanner.jflex_) and a CUP parser (_cup/Parser.cup_). The lexical 
 and grammar rules implemented follow the ECMA-404 standard. There are 
@@ -27,12 +27,12 @@ parsed, and whether the parsing was successful (i.e. the input is a valid
 JSON object) or not. 
 
 
-##Prerequisites
+## Prerequisites
 To compile and build the JSON parser you need to install the latest [Java SDK](http://www.oracle.com/technetwork/java/javase/overview/index.html) and 
 [Apache Ant](http://ant.apache.org/).
 
 
-##Quick Start
+## Quick Start
 Clone this repository into a local folder and build using ant, then execute 
 the parser using the following commands:
 ```
@@ -42,7 +42,7 @@ java -jar jar/parser.jar <path_to_your_JSON_file>
 ```
 
 
-##Test Inputs
+## Test Inputs
 A number of test input files are included in the _/tests_ folder. Run these 
 use the command systax given in the __Quick Start__ section, for example:
 ```
@@ -52,21 +52,21 @@ Descriptions for all the tests and the expected results can be found in the
 _List of tests.pdf_
 
 
-##Parser Output
+## Parser Output
 The parser will output to console information regarding the components of the JSON object as it is parsed, and whether the parsing was successful (i.e. the input is a valid JSON object) or not. 
 
 
-##Parser Implementation
+## Parser Implementation
 The parser consists of two components, a JFlex lexer (_jflex/Scanner.jflex_) 
 and a CUP parser (_cup/Parser.cup_).
 
 
-###Scanner.jflex (inside the _/jflex_ folder)
+### Scanner.jflex (inside the _/jflex_ folder)
 The lexer file defines the main tokens of the JSON format. To begin with, 
 a number of simple regex macros are defined, which are then used to define 
 more complex macros. These macros are then used to define the tokens. 
 
-####Start off by defining a number of helper macros####
+#### Start off by defining a number of helper macros####
 The set of hex digits will be used for the string definition which may 
 include /u followed by 4 hex digits, e.g "/uA1C0"
 ```
@@ -127,7 +127,7 @@ dec_part = {digit}+
 ```
 
 
-####Define more comples macros using these helper macros####
+#### Define more comples macros using these helper macros
 
 Integer numbers consist of an integer part preceded by a numeric sign 
 As defined earlier, the numeric sign is optional
@@ -158,7 +158,7 @@ Null value, i.e. the literal token null
 null = "null"
 ```
 
-####Define the JSON tokens using all these macros ####
+#### Define the JSON tokens using all these macros
 Scan for the allowable JSON "punctuation" tokens and return the relevant
 symbols to the CUP parser
 ```
@@ -193,8 +193,8 @@ new line, and form feed
 [ \t\r\n\f] { /* ignore white spaces */ }
 ```
 
-###Parser.cup (inside the _/cup_ folder)
-####Declare terminals####
+### Parser.cup (inside the _/cup_ folder)
+#### Declare terminals
 Start off by declaring terminals that have no associated value i.e. JSON 
 "punctuation" tokens { } [ ] , : and the null literal.
 ```
@@ -208,7 +208,7 @@ terminal Long INT_NUM;
 terminal Double REAL_NUM, EXP_NUM;
 terminal Boolean BOOLEAN;
 ```
-####Declare non-terminals####
+#### Declare non-terminals
 Declare the non-terminals that can be reduced to other non-terminals in the 
 same list or terminals defined earlier. 
 ```
@@ -226,7 +226,6 @@ Note: this definition does NOT allow a single value as valid JSON.
 ```
 valid_json ::= array | object;
 ```
-
 
 JSON object non-terminal derives a JSON object that can either be empty { } 
 or contain a list of members { member_list }. Also used to print out 
