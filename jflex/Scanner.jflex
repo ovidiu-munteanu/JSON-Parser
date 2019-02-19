@@ -27,7 +27,7 @@ hex_digit = [0-9a-fA-F]
 
 // For string values, the set of valid characters as given by the ECMA-404
 // JSON standard consists of any UNICODE character except for " or \ or the
-// control characters U+0000 through U+FFFF, unless they are part of an escape
+// control characters U+0000 through U+001F, unless they are part of an escape
 // sequence. For clarity, two intermediate macros are defined: one for the
 // valid UNICODE character set, and another for the valid escape sequences.
 // According to the ECMA-404 JSON standard, the valid escape sequences are
